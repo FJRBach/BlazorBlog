@@ -1,0 +1,94 @@
+﻿@page "/crear-post"
+@using ClienteBlogWASM.Modelos
+@using ClienteBlogWASM.Servicios.IServicio
+
+@inject IPostsServicio postsServicio
+@inject IJSRuntime JsRuntime
+<h1 class="text-center">Crear Post</h1>
+
+
+<div class="card">
+	<div class="card-header">
+		<div class="row">
+			<div class="col-7">
+				<h4 class="card-title text-dark">Nuevo post</h4>
+			</div>
+		</div>
+	</div>
+	<div class="card-body">
+		<EditForm Model="CrearPost" OnValidSubmit="@( () => ManageOnCreatePost())"></EditForm>
+		@* <ValidationSummary></ValidationSummary> *@
+		<div class="container">
+			<div class="form-group">
+				<div class="row">
+					<div class="col-2">
+						<label>Título:</label>
+					</div>
+				</div>
+				<div class="col-6">
+					<InputText @bind-Value="CrearPost.Titulo" class="form-control" placeholder="Ingresa el título"></InputText>
+					@* <ValidationMessage For="() => CrearPost.Titulo"></ValidationMessage> *@
+				</div>
+			</div>
+			<br />
+
+			<div class="form-group">
+				<div class="row">
+					<div class="col-2">
+						<label>Descripción:</label>
+					</div>
+				</div>
+				<div class="col-6">
+					<InputText @bind-Value="CrearPost.Descripcion" class="form-control" placeholder="Ingresa la descripción"></InputText>
+					@* <ValidationMessage For="() => CrearPost.Descripcion"></ValidationMessage> *@
+				</div>
+			</div>
+			<br />
+			<div class="form-group">
+				<div class="row">
+					<div class="col-2">
+						<label>Etiquetas:</label>
+					</div>
+				</div>
+				<div class="col-6">
+					<InputText @bind-Value="CrearPost.Etiquetas" class="form-control" placeholder="Ingresa las etiquetas, separadas por coma"></InputText>
+					@* <ValidationMessage For="() => CrearPost.Etiquetas"></ValidationMessage> *@
+				</div>
+			</div>
+			<br />
+
+			<div class="form-group">
+				<div class="row">
+					<div class="col-6">
+						<h4>Imagen del Post:</h4>
+					</div>
+				</div>
+
+				<br />
+
+				<div class="form-group">
+					<div class="row">
+						<div class="col-2">
+							<button type="submit" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Guardar post</button>
+						</div>
+					</div>
+					<div class="col-4">
+						<NavLink href="posts" class="btn btn-secondary"><i class="bi bi-arrow-fill"></i>&nbsp; Volver a posts</NavLink>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+@code 
+{
+	private Post CrearPost { get; set; } = new Post();
+
+	private async Task ManageOnCreatePost()
+	{
+		var crearPost = await postsServicio.CreatePost(CrearPost);
+		await JsRuntime.
+	}
+}
