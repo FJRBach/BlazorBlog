@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿/// ClienteBlogWASM/Helpers/IJsHelper.cs
+using Microsoft.JSInterop;
 
 namespace ClienteBlogWASM.Helpers
 {

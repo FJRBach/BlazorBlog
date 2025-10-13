@@ -1,7 +1,7 @@
 ﻿@page "/crear-post"
 @using ClienteBlogWASM.Modelos
 @using ClienteBlogWASM.Servicios.IServicio
-
+@using ClienteBlogWASM.Helpers
 @inject IPostsServicio postsServicio
 @inject IJSRuntime JsRuntime
 <h1 class="text-center">Crear Post</h1>
@@ -16,7 +16,7 @@
 		</div>
 	</div>
 	<div class="card-body">
-		<EditForm Model="CrearPost" OnValidSubmit="@( () => ManageOnCreatePost())"></EditForm>
+		<EditForm Model="CrearPost" OnValidSubmit="@( () => ManageOnCreatePost())">
 		@* <ValidationSummary></ValidationSummary> *@
 		<div class="container">
 			<div class="form-group">
@@ -79,6 +79,7 @@
 
 			</div>
 		</div>
+		</EditForm>
 	</div>
 </div>
 
@@ -89,6 +90,6 @@
 	private async Task ManageOnCreatePost()
 	{
 		var crearPost = await postsServicio.CreatePost(CrearPost);
-		await JsRuntime.
+		await JsRuntime.ToastrSuccess("Se ha registrado con éxito ");
 	}
 }
