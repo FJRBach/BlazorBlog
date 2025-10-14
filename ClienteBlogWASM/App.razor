@@ -1,12 +1,21 @@
 ﻿<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+        <Authorizing>
+             <p role="alert">Por favor espere mientras se autoriza el usuario.</p>
+        </Authorizing>
+        <NotAuthorized>
+            <ClienteBlogWASM.Pages.Autenticacion.RedireccionarAlAcceso>
+            </ClienteBlogWASM.Pages.Autenticacion.RedireccionarAlAcceso>
+        </NotAuthorized>
+    </AuthorizeRouteView>
     </Found>
     <NotFound>
+        <CascadingAuthenticationState>
         <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p>Error, no se encuentra nada en esta dirección</p>
+            </LayoutView>
+        </CascadingAuthenticationState>
     </NotFound>
 </Router>
