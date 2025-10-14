@@ -8,7 +8,7 @@ namespace ClienteBlogWASM.Servicios.IServicio
         public Task<IEnumerable<Post>> GetPosts();
         public Task<Post> GetPost(int postId);
         Task<Post> CreatePost(PostCrearVM postViewModel);
-        public Task<Post> UpdatePost(int postId, Post post);
+        Task<bool> UpdatePost(int postId, PostActualizarVM postViewModel);
         public Task<bool> DeletePost(int postId);
         public Task<string> UploadImagen(MultipartFormDataContent content);
     }

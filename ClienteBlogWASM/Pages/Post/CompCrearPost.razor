@@ -14,7 +14,6 @@
 <div class="container mt-4 mb-5">
     <EditForm Model="PostModel" OnValidSubmit="HandleSubmit">
         <DataAnnotationsValidator />
-
         <div class="card shadow border-0">
             <div class="card-header bg-light p-3">
                 <h3 class="mb-0">@(esModoCreacion ? "Detalles del Nuevo Post" : "Editando Post")</h3>
@@ -41,7 +40,6 @@
                             <ValidationMessage For="@(() => PostModel.Etiquetas)" />
                         </div>
                     </div>
-
                     <div class="col-md-5">
                         <label class="form-label">Imagen del Post</label>
                         <div class="image-upload-container text-center p-3 border rounded">
@@ -85,9 +83,7 @@
     [Parameter]
     public int? Id { get; set; }
 
-    // El modelo del formulario ahora es el ViewModel específico para la creación.
-    private PostCrearVM PostModel { get; set; } = new PostCrearVM ();
-
+    private PostCrearVM PostModel { get; set; } = new();
     private bool isSubmitting = false;
     private string? imagenPreviewUrl;
     private IBrowserFile? imagenSeleccionada;
@@ -97,15 +93,27 @@
     {
         if (!esModoCreacion)
         {
-            // Lógica para cargar el post existente si estamos en modo edición.
-
+            var postExistente = await postsServicio.GetPost(Id.Value);
+            if (postExistente != null)
+            {
+                PostModel = new PostCrearVM
+                    {
+                        Titulo = postExistente.Titulo,
+                        Descripcion = postExistente.Descripcion,
+                        Etiquetas = postExistente.Etiquetas,
+                        RutaImagen = postExistente.RutaImagen
+                    };
+                if (!string.IsNullOrEmpty(postExistente.RutaImagen))
+                {
+                    imagenPreviewUrl = postExistente.RutaImagen;
+                }
+            }
         }
     }
 
     private async Task HandleSubmit()
     {
         isSubmitting = true;
-
         try
         {
             if (imagenSeleccionada != null)
@@ -114,34 +122,43 @@
                 var fileContent = new StreamContent(imagenSeleccionada.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024));
                 fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(imagenSeleccionada.ContentType);
                 content.Add(fileContent, "imagen", imagenSeleccionada.Name);
-
-                // Subir imagen y obtener la ruta
                 PostModel.RutaImagen = await postsServicio.UploadImagen(content);
             }
 
             if (esModoCreacion)
             {
                 var postCreado = await postsServicio.CreatePost(PostModel);
-                await JsRuntime.ToastrSuccess("Post creado con éxito");
+                await JsRuntime.ToastrSuccess("¡Post creado con éxito!");
             }
             else
             {
-                // Aquí iría la lógica para actualizar
-            }
+                // --- ¡AQUÍ ESTÁ LA MAGIA! ---
+                // Se añade la llamada al servicio de actualización
+                var postParaActualizar = new PostActualizarVM
+                    {
+                        Id = Id.Value,
+                        Titulo = PostModel.Titulo,
+                        Descripcion = PostModel.Descripcion,
+                        Etiquetas = PostModel.Etiquetas,
+                        RutaImagen = PostModel.RutaImagen
+                    };
 
+                // 2. Enviamos el "pasaporte" a la API
+                await postsServicio.UpdatePost(Id.Value, postParaActualizar);
+                await JsRuntime.ToastrSuccess("¡Post actualizado con éxito!");
+            }
             Navigation.NavigateTo("/posts");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error al guardar el post: {ex.Message}");
-            await JsRuntime.ToastrError("Error en la creación del post");
+            await JsRuntime.ToastrError(esModoCreacion ? "Error en la creación del post" : "Error en la actualización del post");
         }
         finally
         {
             isSubmitting = false;
         }
     }
-
 
     private async Task OnImageSelected(InputFileChangeEventArgs e)
     {
@@ -150,25 +167,19 @@
         {
             try
             {
-                var format = "image/png";
-                // Redimensionar la imagen
+                var format = imagenSeleccionada.ContentType;
                 var resizedImageFile = await imagenSeleccionada.RequestImageFileAsync(format, 400, 400);
-
-                // Leer todo el contenido usando MemoryStream
                 using var memoryStream = new MemoryStream();
-                using var stream = resizedImageFile.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024); 
+                using var stream = resizedImageFile.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
                 await stream.CopyToAsync(memoryStream);
-
-                // Convertir a Base64
                 var buffer = memoryStream.ToArray();
                 imagenPreviewUrl = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
-
                 StateHasChanged();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error al procesar la imagen: {ex.Message}");
-                await JsRuntime.ToastrError("Error al cargar la imagen. Verifica que sea menor a 5MB");
+                await JsRuntime.ToastrError("Error al cargar la imagen. Verifica que sea menor a 5MB.");
             }
         }
     }
