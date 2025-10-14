@@ -17,7 +17,7 @@ namespace ClienteBlogWASM.Servicios
         }
         public async Task<bool> DeletePost(int postId)
         {
-            var response = await _httpClient.GetAsync($"{Initialize.UrlBaseApi}api/posts/{postId}");
+            var response = await _httpClient.DeleteAsync($"api/posts/{postId}");
             if (response.IsSuccessStatusCode)
             {
                 return true;
@@ -55,65 +55,90 @@ namespace ClienteBlogWASM.Servicios
             return posts;
         }
 
-        public async Task<Post> CreatePost(PostCrearVM postCreateVM)
+         public async Task<Post> CreatePost(PostCrearVM postCreateVM)
         {
             var content = JsonConvert.SerializeObject(postCreateVM);
             var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+            
+            // Ahora la ruta es relativa, ¡limpio y correcto!
+            var response = await _httpClient.PostAsync("api/posts", bodyContent);
 
-            // 2. Envía el contenido a la API.
-            var response = await _httpClient.PostAsync("api/posts", bodyContent); // Asumiendo que la URL base ya está configurada.
-
-            // 3. Procesa la respuesta de la API.
             var contentTemp = await response.Content.ReadAsStringAsync();
-
             if (response.IsSuccessStatusCode)
             {
-                // La API devuelve un Post completo (con Id y fechas), que deserializamos aquí.
-                var result = JsonConvert.DeserializeObject<Post>(contentTemp);
-                return result;
+                return JsonConvert.DeserializeObject<Post>(contentTemp);
             }
             else
             {
-                // Si hay un error, lo lanzamos para que el componente lo pueda capturar.
                 var errorModel = JsonConvert.DeserializeObject<ModeloError>(contentTemp);
                 throw new Exception(errorModel?.ErrorMessage ?? "Ocurrió un error desconocido");
             }
         }
 
-        public Task<Post> UpdatePost(int postId, Post post)
+
+
+        public async Task<Post> UpdatePost(int postId, Post post)
         {
-            throw new NotImplementedException();
+            var content = JsonConvert.SerializeObject(post);
+            var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PatchAsync($"{Initialize.UrlBaseApi}/api/posts/{postId}", bodyContent);
+            if (response.IsSuccessStatusCode)
+            {
+                var contentTemp = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<Post>(contentTemp);
+                return result;
+            }
+            else
+            {
+                var contentTemp = await response.Content.ReadAsStringAsync();
+                var errorModel = JsonConvert.DeserializeObject<ModeloError>(contentTemp);
+                throw new Exception(errorModel.ErrorMessage);
+            }
         }
 
-        public Task<string> UploadImagen(MultipartFormDataContent content)
+        public async Task<string> UploadImagen(MultipartFormDataContent content)
         {
-            throw new NotImplementedException();
+            var response = await _httpClient.PostAsync("api/posts/upload-imagen", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var contentTemp = await response.Content.ReadAsStringAsync();
+                var resultado = JsonConvert.DeserializeObject<dynamic>(contentTemp);
+                return resultado.ruta;
+            }
+            else
+            {
+                var contentTemp = await response.Content.ReadAsStringAsync();
+                var errorModel = JsonConvert.DeserializeObject<ModeloError>(contentTemp);
+                throw new Exception(errorModel?.ErrorMessage ?? "Error al subir la imagen");
+            }
         }
+
+        //public async Task<Post> UpdatePost(int postId, Post post)
+        //        {
+        //            var content = JsonConvert.SerializeObject(post);
+        //            var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+        //            var response = await _httpClient.PostAsync($"{Initialize.UrlBaseApi}api/posts/{postId}", bodyContent);
+        //            if (response.IsSuccessStatusCode)
+        //            {
+        //                var contentTemp = await response.Content.ReadAsStringAsync();
+        //                var result = JsonConvert.DeserializeObject<Post>(contentTemp);
+        //                return result;
+        //            }
+        //            else
+        //            {
+        //                var contentTemp = await response.Content.ReadAsStringAsync();
+        //                var errorModel = JsonConvert.DeserializeObject<ModeloError>(contentTemp);
+        //                throw new Exception(errorModel.ErrorMessage);
+        //            }
+        //        }
+
+        //        public Task<string> UploadImagen(MultipartFormDataContent content)
+        //        {
+        //            throw new NotImplementedException();
+        //        }
+        //    }
+        //}
+
     }
 }
-
-//public async Task<Post> UpdatePost(int postId, Post post)
-//        {
-//            var content = JsonConvert.SerializeObject(post);
-//            var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
-//            var response = await _httpClient.PostAsync($"{Initialize.UrlBaseApi}api/posts/{postId}", bodyContent);
-//            if (response.IsSuccessStatusCode)
-//            {
-//                var contentTemp = await response.Content.ReadAsStringAsync();
-//                var result = JsonConvert.DeserializeObject<Post>(contentTemp);
-//                return result;
-//            }
-//            else
-//            {
-//                var contentTemp = await response.Content.ReadAsStringAsync();
-//                var errorModel = JsonConvert.DeserializeObject<ModeloError>(contentTemp);
-//                throw new Exception(errorModel.ErrorMessage);
-//            }
-//        }
-
-//        public Task<string> UploadImagen(MultipartFormDataContent content)
-//        {
-//            throw new NotImplementedException();
-//        }
-//    }
-//}

@@ -35,6 +35,7 @@
                                 <th>Título</th>
                                 <th>Descripción</th>
                                 <th>Etiquetas</th>
+                                <th>Imagen</th>
                                 <th>Fecha de Creación</th>
                                 <th>Última Actualización</th>
                                 <th class="text-center">Acciones</th>
@@ -52,13 +53,23 @@
                                         <td>
                                             @if (!string.IsNullOrWhiteSpace(post.Etiquetas))
                                             {
-                                                // Dividimos el string por la coma y eliminamos espacios en blanco
+                                                // Se divide el string por la coma y elimina espacios en blanco
                                                 var tags = post.Etiquetas.Split(',', StringSplitOptions.RemoveEmptyEntries);
                                                 foreach (var tag in tags)
                                                 {
-                                                    // Creamos un badge por cada etiqueta
+                                                    // Se crea un badge por cada etiqueta
                                                     <span class="badge bg-dark me-1 mb-1">@tag.Trim()</span>
                                                 }
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(post.RutaImagen))
+                                            {
+                                                <img src="@($"http://localhost:5269{post.RutaImagen}")" class="img-fluid rounded" width="100px" alt="@post.Titulo" />
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Sin imagen</span>
                                             }
                                         </td>
                                         <td>@post.FechaCreacion.ToString("dd/MM/yyyy, hh:mm tt")</td>
