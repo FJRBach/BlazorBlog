@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// ApiBlog.Modelos.Dtos.PostCrearDto
+using System.ComponentModel.DataAnnotations;
 
 namespace ApiBlog.Modelos.Dtos
 {
@@ -11,6 +12,6 @@ namespace ApiBlog.Modelos.Dtos
         public string RutaImagen { get; set; }
         [Required(ErrorMessage = "Las etiquetas son obligatorias")]
         public string Etiquetas { get; set; }
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        public DateTimeOffset FechaCreacion { get; set; } = DateTimeOffset.Now;
     }
 }

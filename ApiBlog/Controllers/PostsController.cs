@@ -58,7 +58,7 @@ namespace ApiBlog.Controllers
 
         //[Authorize]
         [HttpPost]
-        [ProducesResponseType(201, Type = typeof(PostCrearDto))]
+        [ProducesResponseType(201, Type = typeof(PostDto))] // Deberías retornar PostDto, no PostCrearDto
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -77,17 +77,26 @@ namespace ApiBlog.Controllers
 
             if (_postRepo.ExistePost(crearPostDto.Titulo))
             {
-                ModelState.AddModelError("", "El post ya existe");
-                return StatusCode(404, ModelState);
+                ModelState.AddModelError("", "El post con ese título ya existe");
+                return StatusCode(409, ModelState); // 409 Conflict es más apropiado que 404 Not Found
             }
 
             var post = _mapper.Map<Post>(crearPostDto);
+
+            // Asignamos las fechas universales justo antes de la creación
+            post.FechaCreacion = DateTimeOffset.UtcNow;
+            post.FechaActualizacion = DateTimeOffset.UtcNow;
+
             if (!_postRepo.CrearPost(post))
             {
-                ModelState.AddModelError("", $"Algo salió mal guardando el registro{post.Titulo}");
+                ModelState.AddModelError("", $"Algo salió mal guardando el registro '{post.Titulo}'");
                 return StatusCode(500, ModelState);
             }
-            return CreatedAtRoute("GetPost", new {postId = post.Id}, post);
+
+            // Mapeamos el resultado a un PostDto para retornarlo al cliente
+            var postCreadoDto = _mapper.Map<PostDto>(post);
+
+            return CreatedAtRoute("GetPost", new { postId = post.Id }, postCreadoDto);
         }
 
         //[Authorize]

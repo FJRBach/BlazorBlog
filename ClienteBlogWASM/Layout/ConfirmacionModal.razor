@@ -1,0 +1,60 @@
+﻿@* // ClienteBlogWASM/Layout/ConfirmacionModal *@
+<div class="modal fade @ModalClass" style="display: @ModalDisplay" id="confirmacionModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">@Titulo</h5>
+                <button type="button" class="btn-close" @onclick="Cancelar" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @ChildContent
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+                <button type="button" class="btn btn-danger" @onclick="Confirmar">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Titulo { get; set; } = "Confirmación";
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnConfirmar { get; set; }
+
+    private bool mostrarModal = false;
+
+    public void Mostrar()
+    {
+        mostrarModal = true;
+        StateHasChanged();
+    }
+
+    public void Ocultar()
+    {
+        mostrarModal = false;
+        StateHasChanged();
+    }
+
+    // Propiedades para controlar los estilos y clases
+    private string ModalDisplay => mostrarModal ? "block" : "none";
+    private string ModalClass => mostrarModal ? "show" : "";
+
+    // Methods para manejar los clics y comunicar el resultado al padre
+    private async Task Confirmar()
+    {
+        await OnConfirmar.InvokeAsync(true);
+        Ocultar(); 
+    }
+
+    private async Task Cancelar()
+    {
+        await OnConfirmar.InvokeAsync(false);
+        Ocultar(); 
+    }
+}

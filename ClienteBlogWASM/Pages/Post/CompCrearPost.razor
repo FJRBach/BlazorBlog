@@ -1,95 +1,155 @@
 ﻿@page "/crear-post"
+@page "/editar-post/{id:int}"
 @using ClienteBlogWASM.Modelos
+@using ClienteBlogWASM.Modelos.ViewModels
 @using ClienteBlogWASM.Servicios.IServicio
-@using ClienteBlogWASM.Helpers
+@using System.ComponentModel.DataAnnotations
 @inject IPostsServicio postsServicio
-@inject IJSRuntime JsRuntime
-<h1 class="text-center">Crear Post</h1>
+@inject NavigationManager Navigation
 
+<PageTitle>@(esModoCreacion ? "Crear Nuevo Post" : $"Editar Post")</PageTitle>
 
-<div class="card">
-	<div class="card-header">
-		<div class="row">
-			<div class="col-7">
-				<h4 class="card-title text-dark">Nuevo post</h4>
-			</div>
-		</div>
-	</div>
-	<div class="card-body">
-		<EditForm Model="CrearPost" OnValidSubmit="@( () => ManageOnCreatePost())">
-		@* <ValidationSummary></ValidationSummary> *@
-		<div class="container">
-			<div class="form-group">
-				<div class="row">
-					<div class="col-2">
-						<label>Título:</label>
-					</div>
-				</div>
-				<div class="col-6">
-					<InputText @bind-Value="CrearPost.Titulo" class="form-control" placeholder="Ingresa el título"></InputText>
-					@* <ValidationMessage For="() => CrearPost.Titulo"></ValidationMessage> *@
-				</div>
-			</div>
-			<br />
+<div class="container mt-4 mb-5">
+    <EditForm Model="PostModel" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
 
-			<div class="form-group">
-				<div class="row">
-					<div class="col-2">
-						<label>Descripción:</label>
-					</div>
-				</div>
-				<div class="col-6">
-					<InputText @bind-Value="CrearPost.Descripcion" class="form-control" placeholder="Ingresa la descripción"></InputText>
-					@* <ValidationMessage For="() => CrearPost.Descripcion"></ValidationMessage> *@
-				</div>
-			</div>
-			<br />
-			<div class="form-group">
-				<div class="row">
-					<div class="col-2">
-						<label>Etiquetas:</label>
-					</div>
-				</div>
-				<div class="col-6">
-					<InputText @bind-Value="CrearPost.Etiquetas" class="form-control" placeholder="Ingresa las etiquetas, separadas por coma"></InputText>
-					@* <ValidationMessage For="() => CrearPost.Etiquetas"></ValidationMessage> *@
-				</div>
-			</div>
-			<br />
+        <div class="card shadow border-0">
+            <div class="card-header bg-light p-3">
+                <h3 class="mb-0">@(esModoCreacion ? "Detalles del Nuevo Post" : "Editando Post")</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label">Título</label>
+                            <InputText id="titulo" class="form-control" @bind-Value="PostModel.Titulo" placeholder="Un título atractivo..." />
+                            <ValidationMessage For="@(() => PostModel.Titulo)" />
+                        </div>
 
-			<div class="form-group">
-				<div class="row">
-					<div class="col-6">
-						<h4>Imagen del Post:</h4>
-					</div>
-				</div>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <InputTextArea id="descripcion" class="form-control" @bind-Value="PostModel.Descripcion" rows="5" placeholder="Escribe aquí el contenido principal de tu post..." />
+                            <ValidationMessage For="@(() => PostModel.Descripcion)" />
+                        </div>
 
-				<br />
+                        <div class="mb-3">
+                            <label for="etiquetas" class="form-label">Etiquetas</label>
+                            <InputText id="etiquetas" class="form-control" @bind-Value="PostModel.Etiquetas" />
+                            <div class="form-text">Separa las etiquetas con comas (ej: Blazor, .NET, Desarrollo Web).</div>
+                            <ValidationMessage For="@(() => PostModel.Etiquetas)" />
+                        </div>
+                    </div>
 
-				<div class="form-group">
-					<div class="row">
-						<div class="col-2">
-							<button type="submit" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Guardar post</button>
-						</div>
-					</div>
-					<div class="col-4">
-						<NavLink href="posts" class="btn btn-secondary"><i class="bi bi-arrow-fill"></i>&nbsp; Volver a posts</NavLink>
-					</div>
-				</div>
-
-			</div>
-		</div>
-		</EditForm>
-	</div>
+                    <div class="col-md-5">
+                        <label class="form-label">Imagen del Post</label>
+                        <div class="image-upload-container text-center p-3 border rounded">
+                            <InputFile OnChange="OnImageSelected" accept=".jpg, .jpeg, .png" class="form-control" />
+                            @if (!string.IsNullOrEmpty(imagenPreviewUrl))
+                            {
+                                <div class="mt-3">
+                                    <p class="text-muted small">Vista Previa:</p>
+                                    <img src="@imagenPreviewUrl" class="img-fluid rounded shadow-sm" style="max-height: 200px;" alt="Vista previa de la imagen" />
+                                </div>
+                            }
+                        </div>
+                        <ValidationMessage For="@(() => PostModel.RutaImagen)" />
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-light text-end p-3">
+                <div class="d-flex justify-content-end gap-2">
+                    <NavLink href="posts" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i>&nbsp; Cancelar
+                    </NavLink>
+                    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="ms-1">Guardando...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>&nbsp; @(esModoCreacion ? "Guardar Post" : "Actualizar Post")</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </EditForm>
 </div>
 
-@code 
-{
-	private Post CrearPost { get; set; } = new Post();
+@code {
+    [Parameter]
+    public int? Id { get; set; }
 
-	private async Task ManageOnCreatePost()
-	{
-		var crearPost = await postsServicio.CreatePost(CrearPost);
-		await JsRuntime.ToastrSuccess("Se ha registrado con éxito ");
-	}
+    // --- CORRECCIÓN PRINCIPAL ---
+    // El modelo del formulario ahora es el ViewModel específico para la creación.
+    private PostCrearVM PostModel { get; set; } = new();
+
+    private bool isSubmitting = false;
+    private string? imagenPreviewUrl;
+    private IBrowserFile? imagenSeleccionada;
+    private bool esModoCreacion => Id == null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!esModoCreacion)
+        {
+            // Lógica para cargar el post existente si estamos en modo edición.
+            // Por ejemplo:
+            // var postExistente = await postsServicio.GetPostById(Id.Value);
+            // PostModel = new PostCrearVM { Titulo = postExistente.Titulo, /* etc. */ };
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSubmitting = true;
+
+        // Aquí procesarías la imagen para subirla y obtener una URL.
+        // if(imagenSeleccionada != null) {
+        //    var urlImagen = await postsServicio.SubirImagen(imagenSeleccionada);
+        //    PostModel.RutaImagen = urlImagen;
+        // }
+
+        try
+        {
+            if (esModoCreacion)
+            {
+                // El servicio ahora debe aceptar un PostCrearVM.
+                var postCreado = await postsServicio.CreatePost(PostModel);
+                // Aquí puedes agregar tu notificación Toastr de éxito.
+            }
+            else
+            {
+                // Aquí iría la lógica para actualizar, que probablemente usaría otro ViewModel.
+                // await postsServicio.UpdatePost(Id.Value, PostModel);
+            }
+            Navigation.NavigateTo("/posts");
+        }
+        catch (Exception ex)
+        {
+            // Aquí puedes agregar tu notificación Toastr de error.
+            Console.WriteLine($"Error al guardar el post: {ex.Message}");
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private async Task OnImageSelected(InputFileChangeEventArgs e)
+    {
+        imagenSeleccionada = e.File;
+        if (imagenSeleccionada != null)
+        {
+            var format = "image/png";
+            var resizedImageFile = await imagenSeleccionada.RequestImageFileAsync(format, 400, 400);
+            var buffer = new byte[resizedImageFile.Size];
+            await resizedImageFile.OpenReadStream().ReadAsync(buffer);
+            imagenPreviewUrl = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+            StateHasChanged();
+        }
+    }
 }

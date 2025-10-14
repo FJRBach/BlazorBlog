@@ -12,6 +12,6 @@ namespace ApiBlog.Modelos.Dtos
         public string RutaImagen { get; set; }
         [Required(ErrorMessage = "Las etiquetas son obligatorias")]
         public string Etiquetas { get; set; }
-        public DateTime FechaActualizacion { get; set; }
+        public DateTimeOffset FechaActualizacion { get; set; }
     }
 }

@@ -1,0 +1,31 @@
+﻿@using ClienteBlogWASM.Modelos
+<div class="card h-100 shadow-sm post-card">
+    <img src="@Post.RutaImagen" class="card-img-top" alt="Imagen del post @Post.Titulo" style="height: 200px; object-fit: cover;">
+    <div class="card-body d-flex flex-column">
+        <h5 class="card-title">@Post.Titulo</h5>
+        <p class="card-text text-muted flex-grow-1">@Post.Descripcion</p>
+        <p class="small text-muted">
+            <span class="badge bg-secondary me-2">@Post.Etiquetas</span>
+        </p>
+    </div>
+    <div class="card-footer bg-white border-top-0">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="text-muted small" style="font-size: 0.8em;">
+                <div>Creado: @Post.FechaCreacion.ToString("dd 'de' MMMM, yyyy")</div>
+                <div>Act.: @Post.FechaActualizacion.ToString("dd/MM/yy, hh:mm tt")</div>
+            </div>
+            <div class="post-actions">
+                <NavLink href="@($"editar-post/{Post.Id}")" class="btn btn-outline-success btn-sm me-2"><i class="bi bi-gear-fill"></i></NavLink>
+                <button class="btn btn-outline-danger btn-sm" @onclick="OnEliminar"><i class="bi bi-trash-fill"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public Post Post { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback OnEliminar { get; set; }
+}

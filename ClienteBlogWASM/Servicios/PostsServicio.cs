@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using ClienteBlogWASM.Helpers;
 using ClienteBlogWASM.Modelos;
+using ClienteBlogWASM.Modelos.ViewModels;
 using ClienteBlogWASM.Servicios.IServicio;
 using Newtonsoft.Json;
 
@@ -54,43 +55,34 @@ namespace ClienteBlogWASM.Servicios
             return posts;
         }
 
-        public async Task<Post> CreatePost(Post post)
+        public async Task<Post> CreatePost(PostCrearVM postCreateVM)
         {
-            var content = JsonConvert.SerializeObject(post);
+            var content = JsonConvert.SerializeObject(postCreateVM);
             var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync($"{Initialize.UrlBaseApi}api/posts", bodyContent);
+
+            // 2. Envía el contenido a la API.
+            var response = await _httpClient.PostAsync("api/posts", bodyContent); // Asumiendo que la URL base ya está configurada.
+
+            // 3. Procesa la respuesta de la API.
+            var contentTemp = await response.Content.ReadAsStringAsync();
+
             if (response.IsSuccessStatusCode)
             {
-                var contentTemp = await response.Content.ReadAsStringAsync();
+                // La API devuelve un Post completo (con Id y fechas), que deserializamos aquí.
                 var result = JsonConvert.DeserializeObject<Post>(contentTemp);
                 return result;
             }
             else
             {
-                var contentTemp = await response.Content.ReadAsStringAsync();
+                // Si hay un error, lo lanzamos para que el componente lo pueda capturar.
                 var errorModel = JsonConvert.DeserializeObject<ModeloError>(contentTemp);
-                throw new Exception(errorModel.ErrorMessage);
+                throw new Exception(errorModel?.ErrorMessage ?? "Ocurrió un error desconocido");
             }
         }
 
-
-        public async Task<Post> UpdatePost(int postId, Post post)
+        public Task<Post> UpdatePost(int postId, Post post)
         {
-            var content = JsonConvert.SerializeObject(post);
-            var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync($"{Initialize.UrlBaseApi}api/posts/{postId}", bodyContent);
-            if (response.IsSuccessStatusCode)
-            {
-                var contentTemp = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<Post>(contentTemp);
-                return result;
-            }
-            else
-            {
-                var contentTemp = await response.Content.ReadAsStringAsync();
-                var errorModel = JsonConvert.DeserializeObject<ModeloError>(contentTemp);
-                throw new Exception(errorModel.ErrorMessage);
-            }
+            throw new NotImplementedException();
         }
 
         public Task<string> UploadImagen(MultipartFormDataContent content)
@@ -99,3 +91,29 @@ namespace ClienteBlogWASM.Servicios
         }
     }
 }
+
+//public async Task<Post> UpdatePost(int postId, Post post)
+//        {
+//            var content = JsonConvert.SerializeObject(post);
+//            var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+//            var response = await _httpClient.PostAsync($"{Initialize.UrlBaseApi}api/posts/{postId}", bodyContent);
+//            if (response.IsSuccessStatusCode)
+//            {
+//                var contentTemp = await response.Content.ReadAsStringAsync();
+//                var result = JsonConvert.DeserializeObject<Post>(contentTemp);
+//                return result;
+//            }
+//            else
+//            {
+//                var contentTemp = await response.Content.ReadAsStringAsync();
+//                var errorModel = JsonConvert.DeserializeObject<ModeloError>(contentTemp);
+//                throw new Exception(errorModel.ErrorMessage);
+//            }
+//        }
+
+//        public Task<string> UploadImagen(MultipartFormDataContent content)
+//        {
+//            throw new NotImplementedException();
+//        }
+//    }
+//}

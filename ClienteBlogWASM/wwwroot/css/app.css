@@ -75,3 +75,84 @@
 code {
     color: #c02d76;
 }
+
+/* Mejora de la tabla de posts */
+.table {
+    /* Evita que el contenido "empuje" las celdas en el hover */
+    table-layout: fixed;
+    word-wrap: break-word;
+}
+
+    .table tbody tr {
+        transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+/* Célula que contiene los botones de acción */
+.actions-cell .btn-group {
+    opacity: 0; /* Oculto por defecto */
+    transform: scale(0.9);
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* Al pasar el cursor sobre CUALQUIER PARTE de la fila (tr:hover)... */
+/* ...hacemos visibles los botones dentro de la celda de acciones */
+.table tbody tr:hover .actions-cell .btn-group {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Contenedor responsivo para la tabla */
+.table-responsive {
+    /* Añade un sombreado sutil en los bordes si hay scroll, 
+       indicando al usuario que hay más contenido. */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Estilo para controlar la visibilidad del modal de Blazor */
+.modal.fade {
+    display: none; /* Por defecto está oculto */
+}
+
+    .modal.fade.show {
+        display: block; /* Se muestra cuando tiene la clase 'show' */
+    }
+
+
+/* Estilo y animación para las tarjetas de post */
+.post-card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    border: none;
+    border-radius: 0.5rem; /* Bordes más redondeados */
+}
+
+    .post-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 1rem 1.5rem rgba(0,0,0,0.1) !important;
+    }
+
+/* Estilos para los botones de acción que aparecen en el hover */
+.post-actions {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.post-card:hover .post-actions {
+    opacity: 1;
+}
+
+/* Para un mejor contraste en los botones */
+.btn-primary {
+    --bs-btn-hover-bg: #0056b3;
+}
+
+/* Estilos para el contenedor de carga de imagen */
+.image-upload-container {
+    background-color: #f8f9fa;
+    border-style: dashed !important;
+    border-width: 2px !important;
+    transition: background-color 0.2s ease-in-out;
+}
+
+    .image-upload-container:hover {
+        background-color: #e9ecef;
+    }

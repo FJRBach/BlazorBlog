@@ -1,78 +1,128 @@
 ﻿@page "/posts"
 @using ClienteBlogWASM.Modelos
-@using ClienteBlogWASM.Servicios.IServicio
+@using ClienteBlogWASM.Servicios.IServicio 
+@using ClienteBlogWASM.Layout 
 @inject IPostsServicio postsServicio
 
-<h1 class="text-center">Lista de posts</h1>
+<PageTitle>Gestión de Posts</PageTitle>
 
-<div class="card">
-	<div class="card-header">
-		<div class="row">
-			<div class="col-7">
-				<h4 class="card-title text-dark">Lista de posts</h4>
-			</div>
-			<div class="col-3 offset-2">
-				<NavLink href="crear-post" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i>&nbsp; Nuevo post</NavLink>
-			</div>
-		</div>
-	</div>
-	<div class="card-body">
-		<table class="table table-bordered table-hover">
-			<thead>
-				<tr>
-					<th>Id</th>
-					<th>Título</th>
-					<th>Descripción</th>
-					<th>Etiquetas</th>
-					<th>Ruta de la imagen</th>
-					<th>Fecha de creación</th>
-					<th>Fecha de actualización</th>
-					<th>Acciones</th>
-				</tr>
-			</thead>
-			<tbody>
-				@if (Posts.Count() > 0)
-				{
-					@foreach ( var post in Posts)
-					{
-						<tr>
-							<td>@post.Id</td>
-							<td>@post.Titulo</td>
-							<td>@post.Descripcion</td>
-							<td>@post.Etiquetas</td
-							<td>@post.RutaImagen</td
-							<td>@post.FechaCreacion</td>
-							<td>@post.FechaActualizacion</td>
-							<td>
-								<NavLink href="@($"editar-post/{@post.Id}")" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Editar</NavLink>
-								<button class="btn btn-danger" @onclick="() => ManageOnDelete(post.Id)"><i class="bi bi-trash-fill"></i>&nbsp; Eliminar</button>
-							</td>
-						</tr>
-					}
-				}
-				else
-				{
-					<tr>
-						<td colspan="5">Cargando...</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5">Gestión de Posts</h1>
+        <NavLink href="crear-post" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle-fill"></i>&nbsp; Nuevo Post
+        </NavLink>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            @if (cargando)
+            {
+                <div class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2">Cargando publicaciones...</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Descripción</th>
+                                <th>Etiquetas</th>
+                                <th>Fecha de Creación</th>
+                                <th>Última Actualización</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Posts.Any())
+                            {
+                                @foreach (var post in Posts)
+                                {
+                                    <tr>
+                                        <td>@post.Id</td>
+                                        <td>@post.Titulo</td>
+                                        <td>@post.Descripcion</td>
+                                        <td>
+                                            @if (!string.IsNullOrWhiteSpace(post.Etiquetas))
+                                            {
+                                                // Dividimos el string por la coma y eliminamos espacios en blanco
+                                                var tags = post.Etiquetas.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                                                foreach (var tag in tags)
+                                                {
+                                                    // Creamos un badge por cada etiqueta
+                                                    <span class="badge bg-dark me-1 mb-1">@tag.Trim()</span>
+                                                }
+                                            }
+                                        </td>
+                                        <td>@post.FechaCreacion.ToString("dd/MM/yyyy, hh:mm tt")</td>
+                                        <td>@post.FechaActualizacion.ToString("dd/MM/yyyy, hh:mm tt")</td>
+                                        <td class="actions-cell text-center">
+                                            <div class="btn-group" role="group">
+                                                <NavLink href="@($"editar-post/{post.Id}")" class="btn btn-sm btn-outline-primary" title="Editar">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                </NavLink>
+                                                <button class="btn btn-sm btn-outline-danger" title="Eliminar" @onclick="() => PrepararEliminacion(post)">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center p-4">
+                                        <p class="h5">No se encontraron posts.</p>
+                                        <p class="text-muted">¡Crea el primero para empezar!</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
-@code 
-{
-	public IEnumerable<Post> Posts { get; set; } = new List<Post>();
+<ConfirmacionModal @ref="modalConfirmacion" Titulo="Confirmar Eliminación" OnConfirmar="EliminarPostConfirmado">
+    ¿Estás seguro de que deseas eliminar el post "<strong>@postParaEliminar?.Titulo</strong>"? Esta acción no se puede deshacer.
+</ConfirmacionModal>
 
-	protected override async Task OnInitializedAsync()
-	{
-		Posts = await postsServicio.GetPosts();
-		
-	}
-	public void ManageOnDelete(int postId)
-	{
-		 
-	}
+@code {
+    private bool cargando = true;
+    public List<Post> Posts { get; set; } = new();
+    private Post? postParaEliminar;
+    private ConfirmacionModal modalConfirmacion = null!;
 
+    protected override async Task OnInitializedAsync()
+    {
+        Posts = (await postsServicio.GetPosts()).ToList();
+        cargando = false;
+    }
+
+    private void PrepararEliminacion(Post post)
+    {
+        postParaEliminar = post;
+        modalConfirmacion.Mostrar();
+    }
+
+    private async Task EliminarPostConfirmado(bool confirmado)
+    {
+        if (confirmado && postParaEliminar != null)
+        {
+            // Lógica para eliminar el post...
+            // await postsServicio.DeletePost(postParaEliminar.Id);
+            Posts.Remove(postParaEliminar);
+            StateHasChanged();
+        }
+    }
 }
