@@ -3,7 +3,7 @@
 ___
 ### Permite registrar usuarios, así como autenticarse y permitir un control de los post que genere; una vez que crea un post, puede consultar y visualizarlos en la ruta "/" equivalente a home, así como poder navegar a una tabla de posts en la ruta "/posts", permitiendo modificar o eliminar dicho post. ### 
 ___
-## Es necesario tener instaladas los siguientes paquetes NuGet ##
+## Para la API, es necesario tener instalados los siguientes paquetes NuGet ##
 - automapper.extensions.microsoft.dependencyinjection\8.1.1\
 - microsoft.entityframeworkcore.sqlserver\8.0.20\
 - swashbuckle.aspnetcore\6.6.2\
@@ -14,6 +14,16 @@ ___
 - microsoft.aspnetcore.authentication.jwtbearer\8.0.20\
 - microsoft.entityframeworkcore.tools\8.0.20\
 
+## Para el server WebAssembly, es necesario tener instalados los siguientes paquetes Nuget  ##
+- microsoft.entityframeworkcore.sqlserver\8.0.20\
+- swashbuckle.aspnetcore\6.6.2\
+- newtonsoft.json\13.0.4\
+- microsoft.aspnetcore.mvc.newtonsoftjson\8.0.20\
+- xact.core.pcl\0.0.5014\
+- microsoft.aspnetcore.openapi\8.0.20\
+- microsoft.aspnetcore.authentication.jwtbearer\8.0.20\
+- microsoft.entityframeworkcore.tools\8.0.20\
+___
 ## Configuración del appsettings.json ##
 ```json
 {
