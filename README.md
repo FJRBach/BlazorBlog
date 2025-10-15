@@ -24,14 +24,6 @@ ___
 - microsoft.aspnetcore.authentication.jwtbearer\8.0.20\
 - microsoft.entityframeworkcore.tools\8.0.20\
 ___
-## Importante agregar las migraciones de API con: ##
-```nuget
-update-database
-```
-## Para crear migraciones se utiliza:: ##
-```nuget
-add-migration nombreMigracion
-```
 
 ## Configuración del appsettings.json ##
 ```json
@@ -50,4 +42,12 @@ add-migration nombreMigracion
   },
   "AllowedHosts": "*"
 }
+```
+## Importante agregar las migraciones de API con: ##
+```nuget
+update-database
+```
+## Para crear migraciones se utiliza: ##
+```nuget
+add-migration nombreMigracion
 ```
