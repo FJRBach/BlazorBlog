@@ -156,3 +156,10 @@ code {
     .image-upload-container:hover {
         background-color: #e9ecef;
     }
+
+.imagen-header {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-image: url('../imagenes/header-foto.jpg');
+    background-size: cover;
+}

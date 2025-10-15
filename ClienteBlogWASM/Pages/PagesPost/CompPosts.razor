@@ -2,6 +2,9 @@
 @using ClienteBlogWASM.Modelos
 @using ClienteBlogWASM.Servicios.IServicio 
 @using ClienteBlogWASM.Layout 
+@using Microsoft.AspNetCore.Authorization
+@inject IJSRuntime JsRuntime
+@attribute [Authorize]
 @inject IPostsServicio postsServicio
 
 <PageTitle>Gestión de Posts</PageTitle>

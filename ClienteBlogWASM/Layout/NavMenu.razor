@@ -6,20 +6,40 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                
                 <NavLink class="nav-link text-white" href="/" Match="NavLinkMatch.All">
-                    <span class="p-2" aria-hidden="true"></span>Inicio
+                    <span class="p-2" aria-hidden="true">Inicio</span>
                 </NavLink>
-                <NavLink class="nav-link text-white" href="posts" Match="NavLinkMatch.All">
-                    <span class="p-2" aria-hidden="true"></span>Posts
-                </NavLink>
+                <AuthorizeView>
+                    <Authorized>
+                        <NavLink class="nav-link text-white" href="posts" Match="NavLinkMatch.All">
+                            <span class="p-2" aria-hidden="true">Posts</span>
+                        </NavLink>
+                    </Authorized>
+                </AuthorizeView>
+
             </ul>
             <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
-                <NavLink class="nav-link text-white" href="registrar" Match="NavLinkMatch.All">
-                    <span class="p-2 " aria-hidden="true"></span>Registrar
-                </NavLink>
-                <NavLink class="nav-link text-white" href="acceder" Match="NavLinkMatch.All">
-                    <span class="p-2" aria-hidden="true"></span>Acceder
-                </NavLink>
+                    <AuthorizeView>
+                        <Authorized>
+                            <li class="nav-item p-0">
+                            <NavLink class="nav-link text-white">
+                                <span class="p-2 ">Bienvenido, </span>
+                            </NavLink>
+                            </li>
+                            <li class="nav-item p-0">
+                                <NavLink class="nav-link text-white" href="salir">
+                                    <span class="p-2 ">Salir</span>
+                                </NavLink>
+                            </li>
+                        </Authorized>
+                        <NotAuthorized>
+                        <NavLink class="nav-link text-white" href="acceder" Match="NavLinkMatch.All">
+                            <span class="p-2" aria-hidden="true"></span>Acceder
+                        </NavLink>
+                        </NotAuthorized>
+                    </AuthorizeView>
+              
             </ul>
         </div>
     </div>

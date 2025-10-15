@@ -34,7 +34,7 @@ namespace ClienteBlogWASM.Servicios
             if (response.IsSuccessStatusCode)
             {
                 var Token = resultado["result"]["token"].Value<string>();
-                var Usuario = resultado["result"]["usuario"].Value<string>();
+                var Usuario = resultado["result"]["usuario"]["nombreUsuario"].Value<string>();
                 await _localStorageService.SetItemAsync(Initialize.Token_Local, Token);
                 await _localStorageService.SetItemAsync(Initialize.Datos_Usuario_Local, Usuario);
                 ((AuthStateProvider)_stateProveedorAutenticacion).NotificarUsuarioLogueado(Token);

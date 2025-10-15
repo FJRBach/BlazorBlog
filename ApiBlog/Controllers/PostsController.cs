@@ -94,7 +94,7 @@ namespace ApiBlog.Controllers
         }
 
 
-        //[Authorize]
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(PostDto))]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -124,7 +124,7 @@ namespace ApiBlog.Controllers
             return CreatedAtRoute("GetPost", new { postId = post.Id }, postCreadoDto);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPatch("{postId:int}", Name = "ActualizarPatchPost")]
         [ProducesResponseType(201, Type = typeof(PostCrearDto))]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -160,7 +160,7 @@ namespace ApiBlog.Controllers
             // 5. Retornar NoContent (204) como indica el estándar para actualizaciones exitosas.
             return NoContent();
         }
-            //[Authorize]
+            [Authorize]
             [HttpDelete("{postId:int}", Name = "BorrarPost")]
             [ProducesResponseType(StatusCodes.Status204NoContent)]
             [ProducesResponseType(StatusCodes.Status403Forbidden)]
